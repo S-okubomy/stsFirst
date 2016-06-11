@@ -26,7 +26,7 @@ repositories {
 }
 
 
-//@ˆË‘¶ŠÖŒW‚Ìİ’è
+//ï¿½@ï¿½Ë‘ï¿½ï¿½ÖŒWï¿½Ìİ’ï¿½
 dependencies {
     // SpringBoot
     compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
@@ -34,6 +34,12 @@ dependencies {
     
     // gradle plugin
     compile "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+    
+    compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    
+    // http://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.7.4'
+    
 }
 
 

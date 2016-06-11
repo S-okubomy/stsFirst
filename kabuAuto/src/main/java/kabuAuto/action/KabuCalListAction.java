@@ -1,0 +1,360 @@
+package kabuAuto.action;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import kabuAuto.CaluculateDateUtil;
+import kabuAuto.annotation.Auth;
+import kabuAuto.dto.CalListDto;
+import kabuAuto.dto.SaveUserDto;
+import kabuAuto.form.KabuCalListForm;
+import kabuAuto.service.TKabuDataService;
+
+import org.seasar.struts.annotation.ActionForm;
+import org.seasar.struts.annotation.Execute;
+
+
+public class KabuCalListAction {
+
+	/*
+	 * 計算一覧画面のパラメータ
+	 */
+	@ActionForm
+	@Resource
+	protected KabuCalListForm kabuCalListForm;
+
+	/*
+	 * 投稿マスターテーブルにアクセスする
+	 */
+	@Resource
+	protected TKabuDataService tKabuDataService;
+
+	/*
+	 * ユーザ情報を保存して表示するため
+	 */
+	@Resource
+	protected SaveUserDto saveUserDto;
+
+	/*
+	 * 計算のための、DTO
+	 */
+	@Resource
+	protected CalListDto calListDto;
+
+	/*
+	 * 検索結果有無の情報を受注一覧画面に渡すためのフラグ
+	 */
+	public boolean hasSerch;
+
+
+	/**
+	 * 株価計算一覧画面への遷移
+	 * @return 遷移パス
+	 */
+	@Auth
+	@Execute(validator = false)
+	public String index() {
+
+		List<CalListDto> calList = new ArrayList<CalListDto>();
+		List<CalListDto> kabuList = this.tKabuDataService.findKabuCodeList();
+
+		for(CalListDto kabuInfo : kabuList) {
+			this.calListDto = this.tKabuDataService.calbol(kabuInfo.kabuCode);
+			this.calListDto.kabuCode = kabuInfo.kabuCode;
+			this.calListDto.kabuName = kabuInfo.kabuName;
+			this.calListDto.bolCalLow = this.calListDto.transAve20 - 2.0d * this.calListDto.sigma20;
+			this.calListDto.bolCalUp = this.calListDto.transAve20 + 2.0d * this.calListDto.sigma20;
+			this.calListDto.kairi = (this.calListDto.kabuClose - this.calListDto.transAve20) / this.calListDto.transAve20 * 100.0d;
+
+			calList.add(this.calListDto);
+		}
+
+		this.kabuCalListForm.calList = calList;
+		this.kabuCalListForm.saveUserName = saveUserDto.userName;
+
+		return "kabuCalList.jsp";
+	}
+
+
+	/**
+	 * ボリンジャ該当一覧画面への遷移
+	 * @return 遷移パス
+	 */
+	@Auth
+	@Execute(validator = false)
+	public String bolHit() {
+
+		List<CalListDto> calLowList = new ArrayList<CalListDto>();
+		List<CalListDto> calUpList = new ArrayList<CalListDto>();
+		List<CalListDto> kabuList = this.tKabuDataService.findKabuCodeList();
+
+		for(CalListDto kabuInfo : kabuList) {
+			this.calListDto = this.tKabuDataService.calbol(kabuInfo.kabuCode);
+			this.calListDto.kabuCode = kabuInfo.kabuCode;
+			this.calListDto.kabuName = kabuInfo.kabuName;
+			this.calListDto.bolCalLow = this.calListDto.transAve20 - 2.0d * this.calListDto.sigma20;
+			this.calListDto.bolCalUp = this.calListDto.transAve20 + 2.0d * this.calListDto.sigma20;
+			this.calListDto.kairi = (this.calListDto.kabuClose - this.calListDto.transAve20) / this.calListDto.transAve20 * 100.0d;
+
+			if (this.calListDto.bolCalLow > this.calListDto.kabuClose ) {   //下部バンドより下（買いかも）
+				calLowList.add(this.calListDto);
+			}
+
+			if (this.calListDto.bolCalUp < this.calListDto.kabuClose ) {   //上部バンドより上（売りかも）
+				calUpList.add(this.calListDto);
+			}
+
+		}
+
+		if (calLowList != null) {
+			this.kabuCalListForm.calLowList = calLowList;
+
+		}
+
+		if (calUpList != null) {
+			this.kabuCalListForm.calUpList = calUpList;
+		}
+
+		this.kabuCalListForm.saveUserName = saveUserDto.userName;
+
+		return "bolHitList.jsp";
+	}
+
+
+	/**
+	 * 移動平均乖離率 該当一覧画面への遷移
+	 * @return 遷移パス
+	 */
+	@Auth
+	@Execute(validator = false)
+	public String aveKairiHit() {
+
+		List<CalListDto> calLowList = new ArrayList<CalListDto>();
+		List<CalListDto> calUpList = new ArrayList<CalListDto>();
+		List<CalListDto> kabuList = this.tKabuDataService.findKabuCodeList();
+
+		for(CalListDto kabuInfo : kabuList) {
+			this.calListDto = this.tKabuDataService.calbol(kabuInfo.kabuCode);
+			this.calListDto.kabuCode = kabuInfo.kabuCode;
+			this.calListDto.kabuName = kabuInfo.kabuName;
+			this.calListDto.bolCalLow = this.calListDto.transAve20 - 2.0d * this.calListDto.sigma20;
+			this.calListDto.bolCalUp = this.calListDto.transAve20 + 2.0d * this.calListDto.sigma20;
+			this.calListDto.kairi = (this.calListDto.kabuClose - this.calListDto.transAve20) / this.calListDto.transAve20 * 100.0d;
+
+			if (this.calListDto.kairi <= -10.0d ) {   //移動平均乖離率がマイナス１０％以下（買いかも）
+				calLowList.add(this.calListDto);
+			}
+
+			if (this.calListDto.kairi >= 10.0d ) {   //移動平均乖離率がプラス１０％以上（売りかも）
+				calUpList.add(this.calListDto);
+			}
+		}
+
+		if (calLowList != null) {
+			this.kabuCalListForm.calLowList = calLowList;
+
+		}
+
+		if (calUpList != null) {
+			this.kabuCalListForm.calUpList = calUpList;
+		}
+
+		this.kabuCalListForm.saveUserName = saveUserDto.userName;
+
+		return "aveKairiHit.jsp";
+	}
+
+
+	/**
+	 * 検索画面への遷移
+	 * @return 遷移パス
+	 */
+	@Auth
+	@Execute(validator = false)
+	public String serchDisp() {
+
+		this.kabuCalListForm.saveUserName = saveUserDto.userName;
+
+		return "kabuSerch.jsp";
+	}
+
+
+
+	/**
+	 * 遺伝的アルゴリズムのボリンジャ該当一覧画面への遷移
+	 * @return 遷移パス
+	 */
+	@Auth
+	@Execute(validator = false)
+	public String gaBolHit() {
+
+		String baseDay = CaluculateDateUtil.caluculateDate(0);
+
+		String fname ="GaHist";
+		FileInputStream fis = null;
+		InputStreamReader ir = null;
+		BufferedReader br = null;
+
+		//フォーマット
+		DecimalFormat df1 = new DecimalFormat("0");
+
+		try {
+			//既存の株価データファイルを読み込む
+			fis = new FileInputStream( "C://pleiades/workspace/rcgaBatch1/src/main/java/rcgaBatch1/batch/" + fname + ".csv" );
+//			fis = new FileInputStream( "/opt/" + fname + ".csv" );
+			ir = new InputStreamReader(fis , "UTF-8");
+			br = new BufferedReader(ir);
+
+			//読み込み
+			String stringTmp;
+			String[] strTmp = new String[7];
+			while ((stringTmp = br.readLine())!= null){
+	            //区切り文字","で分割する
+	        	strTmp = stringTmp.split(",");
+	        }
+
+			this.kabuCalListForm.gSedai  = strTmp[0];
+			this.kabuCalListForm.pcsNo   = strTmp[1];
+			this.kabuCalListForm.fitLast = strTmp[2];
+			this.kabuCalListForm.A0      = strTmp[3];
+			this.kabuCalListForm.A1      = df1.format(Double.parseDouble(strTmp[4]));
+			this.kabuCalListForm.A2      = strTmp[5];
+			this.kabuCalListForm.A3      = strTmp[6];
+
+		} catch (IOException ex) {
+            //例外発生時処理
+            ex.printStackTrace();
+        } finally {
+        	try {
+                // ストリームは必ず finally で close
+    			//ファイルクローズ
+    			br.close();
+    			ir.close();
+    			fis.close();
+            } catch (IOException e) {
+            }
+        }
+
+		List<CalListDto> calLowList = new ArrayList<CalListDto>();
+		List<CalListDto> calUpList = new ArrayList<CalListDto>();
+		List<CalListDto> kabuList = this.tKabuDataService.findKabuCodeList();
+
+		for(CalListDto kabuInfo : kabuList) {
+			this.calListDto = tKabuDataService.gaCalbol( Integer.valueOf(this.kabuCalListForm.A1),String.valueOf(0), kabuInfo.kabuCode, baseDay);
+			this.calListDto.kabuCode = kabuInfo.kabuCode;
+			this.calListDto.kabuName = kabuInfo.kabuName;
+			this.calListDto.bolCalLow = (Double.valueOf(this.kabuCalListForm.A2) * calListDto.transAve20
+					                - Double.valueOf(this.kabuCalListForm.A0) * calListDto.sigma20) * Double.valueOf(this.kabuCalListForm.A3);
+			this.calListDto.bolCalUp = (Double.valueOf(this.kabuCalListForm.A2) * calListDto.transAve20
+					                + Double.valueOf(this.kabuCalListForm.A0) * calListDto.sigma20) * Double.valueOf(this.kabuCalListForm.A3);
+			this.calListDto.kairi = (this.calListDto.kabuClose - this.calListDto.transAve20) / this.calListDto.transAve20 * 100.0d;
+			if (this.calListDto.bolCalLow > this.calListDto.kabuClose ) {   //下部バンドより下（買いかも）
+				calLowList.add(this.calListDto);
+			}
+			if (this.calListDto.bolCalUp < this.calListDto.kabuClose ) {   //上部バンドより上（売りかも）
+				calUpList.add(this.calListDto);
+			}
+		}
+
+		if (calLowList != null) {
+			this.kabuCalListForm.calLowList = calLowList;
+
+		}
+		if (calUpList != null) {
+			this.kabuCalListForm.calUpList = calUpList;
+		}
+
+		this.kabuCalListForm.saveUserName = saveUserDto.userName;
+
+		return "gaBolHitList.jsp";
+	}
+
+
+
+	/**
+	 * 検索 画面への遷移
+	 * @return 遷移パス
+	 */
+	@Auth
+	@Execute(validator = false)
+	public String kabuSerch() {
+
+		List<CalListDto> calLowList = new ArrayList<CalListDto>();
+		List<CalListDto> calUpList = new ArrayList<CalListDto>();
+		List<CalListDto> kabuList = this.tKabuDataService.findKabuCodeList();
+
+		for(CalListDto kabuInfo : kabuList) {
+			this.calListDto = this.tKabuDataService.calbol(kabuInfo.kabuCode);
+			this.calListDto.kabuCode = kabuInfo.kabuCode;
+			this.calListDto.kabuName = kabuInfo.kabuName;
+
+				if (convertSelectId(this.kabuCalListForm.sigmaSerch) !=null) {
+					this.calListDto.bolCalLow = this.calListDto.transAve20 - Double.parseDouble(this.kabuCalListForm.sigmaSerch) * this.calListDto.sigma20;
+					this.calListDto.bolCalUp = this.calListDto.transAve20 + Double.parseDouble(this.kabuCalListForm.sigmaSerch) * this.calListDto.sigma20;
+					this.calListDto.kairi = (this.calListDto.kabuClose - this.calListDto.transAve20) / this.calListDto.transAve20 * 100.0d;
+					if (this.calListDto.bolCalLow > this.calListDto.kabuClose ) {   //下部バンドより下（買いかも）
+						calLowList.add(this.calListDto);
+					}
+					if (this.calListDto.bolCalUp < this.calListDto.kabuClose ) {   //上部バンドより上（売りかも）
+						calUpList.add(this.calListDto);
+					}
+
+				} else if (convertSelectId(this.kabuCalListForm.kairiSerch) !=null ) {   //移動平均乖離率がマイナス X％以下（買いかも）
+					this.calListDto.kairi = (this.calListDto.kabuClose - this.calListDto.transAve20) / this.calListDto.transAve20 * 100.0d;
+					this.calListDto.bolCalLow = this.calListDto.transAve20 - 2.0d * this.calListDto.sigma20;
+					this.calListDto.bolCalUp = this.calListDto.transAve20 + 2.0d * this.calListDto.sigma20;
+					if (this.calListDto.kairi <= - Double.parseDouble(convertSelectId(this.kabuCalListForm.kairiSerch))) {   //移動平均乖離率がマイナス X％以下（買いかも）
+						calLowList.add(this.calListDto);
+					}
+					if (this.calListDto.kairi >= Double.parseDouble(convertSelectId(this.kabuCalListForm.kairiSerch))) {   //移動平均乖離率がプラス X％以上（売りかも）
+						calUpList.add(this.calListDto);
+					}
+				}
+		}
+
+		if (calLowList != null) {
+			this.kabuCalListForm.hasSerch = true;
+			this.kabuCalListForm.calLowList = calLowList;
+		}
+
+		if (calUpList != null) {
+			this.kabuCalListForm.hasSerch = true;
+			this.kabuCalListForm.calUpList = calUpList;
+		}
+
+		this.kabuCalListForm.serchFlag = true;
+
+		this.kabuCalListForm.saveUserName = saveUserDto.userName;
+
+		return "kabuSerch.jsp";
+
+	}
+
+
+	/**
+	 * セレクトボックスのIDを確認し、未選択の場合、nullを返す。
+	 * @param value ステータスID
+	 * @return ステータスIDが未選択の場合はnull、それ以外は、ステータスID値を返す
+	 */
+	private String convertSelectId(String value) {
+	    if ( value == null || value.length() == 0 || value.equals("未選択")) {
+	        return null;
+	    } else {
+	        return value;
+	    }
+	}
+
+
+
+
+
+
+
+}
