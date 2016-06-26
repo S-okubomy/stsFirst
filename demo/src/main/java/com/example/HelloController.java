@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableAutoConfiguration
 public class HelloController 
 {
-    @RequestMapping("/")
+    @RequestMapping("/restCtr1")
     @ResponseBody
     public String home() {
         return "Spring Hello World!";
