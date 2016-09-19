@@ -2,7 +2,7 @@ buildscript {
 	ext {
 		springBootVersion = '1.3.2.RELEASE'
 		 // tomcat
-        tomcatVersion = "8.0.15"
+        tomcatVersion = "8.0.32"
 	}
 	repositories {
 		mavenCentral()

@@ -1,5 +1,9 @@
 #
+<<<<<<< HEAD
 #Mon Sep 19 08:56:29 JST 2016
+=======
+#Sat Sep 03 13:49:25 JST 2016
+>>>>>>> branch 'master' of https://github.com/S-okubomy/stsFirst.git
 org.eclipse.jdt.core.compiler.debug.localVariable=generate
 org.eclipse.jdt.core.compiler.compliance=1.8
 org.eclipse.jdt.core.compiler.codegen.unusedLocal=preserve
