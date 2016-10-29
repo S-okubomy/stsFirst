@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import rcgaBatch1.dto.CalFitDto;
 import rcgaBatch1.dto.CalProbaDto;
 import rcgaBatch1.dto.InitDto;
+import rcgaBatch1.dto.ResultGeneDto;
 import util.GetHinshiUtil;
 
 /**
@@ -20,8 +21,11 @@ public class MainRcga {
 	private static final int mSedai = InitDto.calSedai; //繰り返し世代数
 
 
-	public void calGene(String evaluationClsName) {
+	public ResultGeneDto calGene(String evaluationClsName) {
 
+	    // 最適化の結果返却用
+        ResultGeneDto resultGeneDto = new ResultGeneDto();
+	    
 		try{
 			// Projectのトップディレクトリパス取得
 			String folderName = System.getProperty("user.dir");
@@ -155,7 +159,6 @@ public class MainRcga {
 				}
 
 			}
-
 			//ファイルクローズ
 			bw.close();
 
@@ -186,10 +189,17 @@ public class MainRcga {
 
 			//ファイルクローズ
 			bwUse.close();
+			
+			// 最適化後の結果をセットする
+			resultGeneDto.setFit1(fitMaxNumGen1);
+    	    resultGeneDto.setTrueVal1(truvalGenMax1);
+    	    resultGeneDto.setAc1(acGenMax1);
+			
 		} catch (Exception e) {
 		    System.out.println(e.getMessage());
 		}
-
+		
+		return resultGeneDto;
 	}
 
 }
