@@ -1,0 +1,8 @@
+DaoType=S2JDBC
+DefaultResourcePath=/getStudyManModelTest/src/main/resources
+DefaultRootPackage=rcgaBatch1
+DefaultSrcPath=/getStudyManModelTest/src/main/java
+ServletPath=/getStudyNgram
+ViewType=SA-Struts
+WebContentsRoot=src/main/webapp
+eclipse.preferences.version=1

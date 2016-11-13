@@ -9,7 +9,7 @@ public class testExe1 {
     public static void main(String[] args) {
 
         MainRcga mainRcga = new MainRcga();
-        ResultGeneDto result = mainRcga.calGene("evalutePack.testEvaClass1");
+        ResultGeneDto result = mainRcga.calGene("evalutePack.SvmEvaClass");
 
         System.out.println("---------------------最適化結果--------------------");
         System.out.println("実値: " + dblToStr(result.getTrueVal1()) +  "  係数： "

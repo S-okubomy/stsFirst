@@ -14,7 +14,7 @@ public class InitDto implements Serializable {
 	public static final int nn =4;                   		//染色体の数
 	public static final int calKabuNo = 50;           		//指定の株コードまで調整すること
 	public static final int buyDay = 30;              		//売買期間 日
-	public static final int calSedai = 1000;             		//計算世代数
+	public static final int calSedai = 100;             		//計算世代数
 	public static final String keisanKabuCode = "3250";    //計算世代数
 
 //	public static final double minA0=-2.0,maxA0=2.0;   //σの係数の範囲
@@ -23,7 +23,7 @@ public class InitDto implements Serializable {
 //	public static final double minA3=-2.0,maxA3=2.0;  //全体へｎの係数
 
 
-	public static final double minA0=-1.0,maxA0=1.0;   //σの係数の範囲
+	public static final double minA0=-150.0,maxA0=100.0;   //σの係数の範囲
 	public static final double minA1=-1.0,maxA1=1.0;   //期間の範囲
 	public static final double minA2=1.0,maxA2=218.0;  //avaの係数
 	public static final double minA3=1.0,maxA3=218.0;  //全体へｎの係数

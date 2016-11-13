@@ -1,0 +1,7 @@
+"USER_MANEGE_ID","CLASSIFICATION_ID","NAME","PASSWORD","USER_LOGIN_ID"
+"1","1","大久保　正幸","root","okubo"
+"2","2","共通","open","common"
+"3","2","ゲスト","open","guest"
+"4","2","富田","open","tomita"
+"5","2","ちー","open","chi"
+"7","1","okb","open","okb"
