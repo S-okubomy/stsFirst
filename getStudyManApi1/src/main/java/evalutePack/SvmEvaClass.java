@@ -29,7 +29,7 @@ public class SvmEvaClass implements BaseEvaVal{
         // Projectのトップディレクトリパス取得
         String folderName = System.getProperty("user.dir");
         // トップディレクトリパス以降を設定
-        folderName = folderName + "\\src\\main\\java\\evalutePack\\";
+        folderName = folderName + "\\src\\main\\java\\rcgaBatch1\\batch\\";
         
         //学習データの読み込み
         String csvFileInput = folderName + "nGramOutput.csv";

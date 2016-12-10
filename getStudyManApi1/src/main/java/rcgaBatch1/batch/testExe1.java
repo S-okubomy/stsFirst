@@ -11,7 +11,7 @@ public class testExe1 {
 
         MainRcga mainRcga = new MainRcga();
 //        ResultGeneDto result = mainRcga.calGene("evalutePack.testEvaClass1");
-        ResultGeneDto result = mainRcga.calGene("evalutePack.prod1Eva1");
+        ResultGeneDto result = mainRcga.calGene("evalutePack.SvmEvaClass");
 
         System.out.println("---------------------最適化結果--------------------");
         String strPrMaxAll = "実値: " + dblToStr(result.getTrueVal1()) +  "  係数： ";
