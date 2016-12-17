@@ -200,6 +200,8 @@ public class TestNGramOut {
 			zengoGaitoMojiStream.flush();
 		}
 		zengoGaitoMojiStream.close();
+		
+		System.out.println("---------------------NGram出力完了--------------------");
 	}
 
 	/**
