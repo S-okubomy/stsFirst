@@ -1,6 +1,11 @@
 package evalutePack;
 
 
+import static util.FmtUtil.dblToStr;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import interfaceEva.BaseEvaVal;
 
 
@@ -51,54 +56,78 @@ public class prod1Eva1 implements BaseEvaVal{
         
         
         double evaValue = 0;
-        
+        List<String> ansList = new ArrayList<String>();
         if ("雨".equals(gp1[0])) {
             evaValue = evaValue - 2.0;
+            ansList.add(gp1[0]);
             if ("傘有".equals(gp1[1])) {
                 evaValue = evaValue + 1.0;
+                ansList.add(gp1[1]);
                 if ("適温".equals(gp1[5])) {
                     evaValue = evaValue + 2.0;
+                    ansList.add(gp1[5]);
                     if ("満員電車".equals(gp1[2])) {
                         evaValue = evaValue - 3.0;
+                        ansList.add(gp1[2]);
                     }
                 } else if ("寒い".equals(gp1[6])) {
                     evaValue = evaValue - 2.0;
+                    ansList.add(gp1[6]);
                     if ("満員電車".equals(gp1[2])) {
                         evaValue = evaValue - 1.0;
+                        ansList.add(gp1[2]);
                     }
                 } else if ("熱い".equals(gp1[7])) {
                     evaValue = evaValue - 4.0;
+                    ansList.add(gp1[7]);
                     if ("満員電車".equals(gp1[2])) {
                         evaValue = evaValue - 5.0;
+                        ansList.add(gp1[2]);
                     }
                 }
             } else {
                 evaValue = evaValue - 5.0;
                 if ("大雨".equals(gp1[3])) {
                     evaValue = evaValue - 5.0;
+                    ansList.add(gp1[3]);
                 } else if ("小雨".equals(gp1[4])) {
                     evaValue = evaValue - 1.0;
+                    ansList.add(gp1[4]);
                 }
             }
         } else {
             evaValue = evaValue + 1.0;
+            ansList.add("雨以外");
             if ("適温".equals(gp1[5])) {
                 evaValue = evaValue + 2.0;
+                ansList.add(gp1[5]);
                 if ("満員電車".equals(gp1[2])) {
                     evaValue = evaValue - 3.0;
+                    ansList.add(gp1[2]);
                 }
             } else if ("寒い".equals(gp1[6])) {
                 evaValue = evaValue - 2.0;
+                ansList.add(gp1[6]);
                 if ("満員電車".equals(gp1[2])) {
                     evaValue = evaValue - 1.0;
+                    ansList.add(gp1[2]);
                 }
             } else if ("熱い".equals(gp1[7])) {
                 evaValue = evaValue - 4.0;
+                ansList.add(gp1[7]);
                 if ("満員電車".equals(gp1[2])) {
                     evaValue = evaValue - 5.0;
+                    ansList.add(gp1[2]);
                 }
             }
         }
+        
+        
+        String ansAll = "実値:" + evaValue + " 答え: ";
+        for (String ans : ansList) {
+            ansAll = ansAll + ans  + "  ";
+        }
+        System.out.println(ansAll);
 
         return evaValue;
     }
