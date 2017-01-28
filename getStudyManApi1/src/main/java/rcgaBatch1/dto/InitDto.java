@@ -25,10 +25,10 @@ public class InitDto implements Serializable {
     
     // 変数の最小値
     public static final double[] minA 
-       = {-500.0};
+       = {-700.0};
     // 変数の最大値
     public static final double[] maxA 
-       = {500.0};
+       = {300.0};
 
 	public static final int NN =100;                        //個体数
 	public static final int calKabuNo = 50;                 //指定の株コードまで調整すること

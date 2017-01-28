@@ -43,7 +43,8 @@ public class MainGetJitsuDate {
 	public void getJitsuDate(String[] args) throws Exception {
 
 		//学習データ取得先 URL指定
-		String reqUrl = "http://dic.nicovideo.jp/a/";
+//		String reqUrl = "http://dic.nicovideo.jp/a/";
+		String reqUrl = "https://ja.wikipedia.org/wiki/";
 		//String reqUrl = "http://search.goo.ne.jp/web.jsp?MT=掲示板 ADワークス&mode=0&sbd=goo001&IE=UTF-8&OE=UTF-8";
 
 		//学習先のHTMLリスト
