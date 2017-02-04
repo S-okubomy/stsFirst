@@ -18,6 +18,9 @@ public class StudyModelDto implements Serializable {
 
 	/** 学習内容 */
 	private String studyNaiyo;
+	
+	/** 決定関数値 */
+    private double fxValue;
 
 	public void setStudyNo(String studyNo){
         this.studyNo = studyNo;
@@ -33,6 +36,10 @@ public class StudyModelDto implements Serializable {
 
 	public void setStudyNaiyo(String studyNaiyo){
         this.studyNaiyo = studyNaiyo;
+    }
+	
+    public void setFxValue(double fxValue){
+        this.fxValue = fxValue;
     }
 
 	public String getStudyNo() {
@@ -50,5 +57,9 @@ public class StudyModelDto implements Serializable {
 	public String getStudyNaiyo() {
 		return this.studyNaiyo;
 	}
+	
+    public double getFxValue() {
+        return this.fxValue;
+    }
 
 }

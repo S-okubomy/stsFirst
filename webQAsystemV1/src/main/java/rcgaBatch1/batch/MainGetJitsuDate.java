@@ -17,6 +17,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import rcgaBatch1.dto.InitDto;
+import rcgaBatch1.dto.StudyModelDto;
 import util.ReadFileUtil;
 import util.SelectWordUtil;
 
@@ -42,25 +43,6 @@ public class MainGetJitsuDate {
 
 	public void getJitsuDate(String[] args) throws Exception {
 
-		//学習データ取得先 URL指定
-//		String reqUrl = "http://dic.nicovideo.jp/a/";
-		String reqUrl = "https://ja.wikipedia.org/wiki/";
-		//String reqUrl = "http://search.goo.ne.jp/web.jsp?MT=掲示板 ADワークス&mode=0&sbd=goo001&IE=UTF-8&OE=UTF-8";
-
-		//学習先のHTMLリスト
-		List<String> studyHtmlList = new ArrayList<String>();
-
-		//TODO テスト用　後消す
-//		args[0] = "Raspberry Piとは";
-//		args[0] = "チョコレートとは";
-		args[0] = "ギター";
-		studyHtmlList.add(reqUrl + args[0]);
-		System.out.println("以下、検索元URL");
-		System.out.println(reqUrl + args[0]);
-		System.out.println("以下、URLリスト（検索結果）");
-		for (String htmlUrl : studyHtmlList) {
-			System.out.println(htmlUrl);
-		}
 		
         // Projectのトップディレクトリパス取得
         String folderName = System.getProperty("user.dir");
@@ -71,12 +53,6 @@ public class MainGetJitsuDate {
 		String csvWeightValueFileInput = folderName + "outWeightValue.csv";
 		LinkedHashMap<String,String[]> weightValueMap = ReadFileUtil.readCsvCom(csvWeightValueFileInput);
 
-		//配列を作りなおし
-		String[] weightValueMapArray = new String[weightValueMap.get("1").length -1];
-		for(int ii = 0; ii < weightValueMap.get("1").length -1; ii++) {
-			weightValueMapArray[ii] = weightValueMap.get("1")[ii + 1];
-    	}
-
 		//GA学習結果の読み取り
 		String csvStudyResultInput = folderName + "getStudyManModelTestHist.csv";
 		LinkedHashMap<String,String[]> studyResultMap = ReadFileUtil.readCsvCom(csvStudyResultInput);
@@ -86,49 +62,35 @@ public class MainGetJitsuDate {
 		String soseiVecterSakusei = folderName + "studyInput.txt";
 		LinkedHashMap<String,String[]> soseiVecterSakuseiMap = ReadFileUtil.readCsvCom(soseiVecterSakusei);
 
-		//出力ファイル
-		String strOutputFile = folderName + "outputJitsu.txt";
-		BufferedWriter newFileStream = new BufferedWriter(new FileWriter(strOutputFile));
-
-		Pattern pUrl = Pattern.compile("(.pdf)");
-		Matcher matcherUrl;
 		String[] sujoVector;
 
-		try{
-			for(String studyHtml : studyHtmlList) {
-				matcherUrl = pUrl.matcher(studyHtml);
-				if (!matcherUrl.find()) {
-					//URLにアクセス
-					Document document = Jsoup.connect(studyHtml).get();
-					//ネット情報を分割して配列に
-					Pattern p = Pattern.compile("[。.]+");
-					String[] rsltNetInfo = p.split(document.text());
-						for (int iCount =0; iCount < rsltNetInfo.length; iCount++) {
-							sujoVector = getSujoVector(soseiVecterSakuseiMap, rsltNetInfo[iCount]);
-							if (SEIKAI.equals(isFuriwake(sujoVector, weightValueMapArray, Double.parseDouble(gaResultArray[3])))) {
-								//ファイルへの書き込み
-								newFileStream.write(rsltNetInfo[iCount]);
-								newFileStream.newLine();
-								newFileStream.flush();
-							}
-						}
-				}
-			}
-		} catch (IOException e){
-			e.printStackTrace();
-			System.out.println("ファイル書き込み失敗");
-		} finally {
-			try {
-				// ストリームは必ず finally で close
-				if (newFileStream != null) {
-					newFileStream.close();
-					System.out.println("出力完了");
-				}
-			} catch (IOException e) {
-			}
-		}
 
+		String testSentence = "誕生日はいつですか?";
+		
+		sujoVector = getSujoVector(soseiVecterSakuseiMap, testSentence);
+		
+		for (String key : weightValueMap.keySet()) {
+		      //配列を作りなおし
+	        String[] weightValueMapArray = new String[weightValueMap.get(key).length -1];
+	        for(int ii = 0; ii < weightValueMap.get(key).length -1; ii++) {
+	            weightValueMapArray[ii] = weightValueMap.get(key)[ii + 1];
+	        }
+	        
+	        StudyModelDto studyModelDto = isFuriwake(sujoVector, weightValueMapArray
+	                                        , Double.parseDouble(gaResultArray[3]));
+	        
+	        if (SEIKAI.equals(studyModelDto.getHanteiJoho())) {
+	            //ファイルへの書き込み
+	            System.out.println("該当あり    質問分類: " + weightValueMap.get(key)[0] + " fx= " + studyModelDto.getFxValue());
+	        } else {
+	            System.out.println("該当 なし   質問分類: " + weightValueMap.get(key)[0] + " fx= " + studyModelDto.getFxValue());
+	        }
+		}
+		
+
+		
 	}
+
 
 	/**
 	 * 素性ベクトルを返す
@@ -149,9 +111,7 @@ public class MainGetJitsuDate {
 			String studyLine = soseiVecterSakuseiMap.get(key)[3];
 			tagger.analyze(studyLine, tokens);
 			for (Token token : tokens) {
-				if (!"名詞".equals(SelectWordUtil.selectWord(token.getMorpheme().getPartOfSpeech(), "", "-"))) {
-					oneGramTitle.append(token.getSurface() + ",");
-				}
+				oneGramTitle.append(token.getSurface() + ",");
 			}
 		}
 
@@ -161,11 +121,8 @@ public class MainGetJitsuDate {
 			String studyLine = soseiVecterSakuseiMap.get(key)[3];
 			tagger.analyze(studyLine, tokens);
 			for (int i = 0; i < tokens.size() -1; i++) {
-				if (!"名詞".equals(SelectWordUtil.selectWord(tokens.get(i).getMorpheme().getPartOfSpeech(), "", "-"))
-						&& !"名詞".equals(SelectWordUtil.selectWord(tokens.get(i+1).getMorpheme().getPartOfSpeech(), "", "-"))) {
-					twoGramTitle.append(tokens.get(i).getSurface()); // 1単語目の出力
-					twoGramTitle.append(tokens.get(i + 1).getSurface() + ","); // 連結 2単語目の出力
-				}
+				twoGramTitle.append(tokens.get(i).getSurface()); // 1単語目の出力
+				twoGramTitle.append(tokens.get(i + 1).getSurface() + ","); // 連結 2単語目の出力
 			}
 		}
 
@@ -175,13 +132,9 @@ public class MainGetJitsuDate {
 			String studyLine = soseiVecterSakuseiMap.get(key)[3];
 			tagger.analyze(studyLine, tokens);
 			for (int i = 0; i < tokens.size() -1; i++) {
-				if (!"名詞".equals(SelectWordUtil.selectWord(tokens.get(i).getMorpheme().getPartOfSpeech(), "", "-"))
-						&& !"名詞".equals(SelectWordUtil.selectWord(tokens.get(i+1).getMorpheme().getPartOfSpeech(), "", "-"))) {
-					tangoHinshi.append(tokens.get(i).getSurface());  // 1単語目の出力
-					tangoHinshi.append("/");
-					tangoHinshi.append(SelectWordUtil.selectWord(tokens.get(i+1).getMorpheme().getPartOfSpeech(), "", "-") + ",");  // 連結 2単語目の出力
-				}
-
+				tangoHinshi.append(tokens.get(i).getSurface());  // 1単語目の出力
+				tangoHinshi.append("/");
+				tangoHinshi.append(SelectWordUtil.selectWord(tokens.get(i+1).getMorpheme().getPartOfSpeech(), "", "-") + ",");  // 連結 2単語目の出力
 			}
 		}
 
@@ -266,7 +219,7 @@ public class MainGetJitsuDate {
 	 * @param getHinshiTmp
 	 * @return　述語に振り分けたらTrue（正解データと判定）, それ以外はFalse
 	 */
-	private String isFuriwake(String[] allSujoVector, String[] weightParam, double gaParameter) {
+	private StudyModelDto isFuriwake(String[] allSujoVector, String[] weightParam, double gaParameter) {
 
 		int[] intSujoVector = new int[allSujoVector.length];
 		int[] intWeightParam = new int[allSujoVector.length];
@@ -283,13 +236,17 @@ public class MainGetJitsuDate {
 
 		double fxValue = (double)getNaiseki(intWeightParam, intSujoVector)
 							+ gaParameter;
-
+		
+		StudyModelDto studyModelDto = new StudyModelDto();
 		if (fxValue >= 0) {
-			return SEIKAI;
+		    studyModelDto.setFxValue(fxValue);
+		    studyModelDto.setHanteiJoho(SEIKAI);
 		} else { // fx が負の場合
-			return FUSEIKAI;
+           studyModelDto.setFxValue(fxValue);
+           studyModelDto.setHanteiJoho(FUSEIKAI);
 		}
-
+		
+		return studyModelDto;
 	}
 
 	/**

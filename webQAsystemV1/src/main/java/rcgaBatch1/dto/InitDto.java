@@ -30,10 +30,10 @@ public class InitDto implements Serializable {
     public static final double[] maxA 
        = {300.0};
 
-	public static final int NN =5;                        //個体数
+	public static final int NN = 300;                        //個体数
 	public static final int calKabuNo = 50;                 //指定の株コードまで調整すること
 	public static final int buyDay = 30;                    //売買期間 日
-	public static final int calSedai = 4;                     //計算世代数
+	public static final int calSedai = 1000;                     //計算世代数
 	public static final String keisanKabuCode = "3250";    //計算世代数
 	public static final int nn = minA.length;               //染色体の数
 	

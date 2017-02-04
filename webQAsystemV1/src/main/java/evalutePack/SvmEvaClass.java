@@ -1,5 +1,7 @@
 package evalutePack;
 
+import static util.FmtUtil.dblToStr;
+
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -61,11 +63,13 @@ public class SvmEvaClass implements BaseEvaVal{
         
         double evaValue = 0;
         double fxValue = 0;
+        int countAll = 0;
         // 重み係数のマップを分類ごとにループし、修正する。
         for (String keyWeightParam : weightParamMap.keySet()) {
             // 学習データを一行ずつ判断する。
             for (String key : studyMap.keySet()) {
                 if (!"データNo".equals(studyMap.get(key)[0])) {
+                    countAll++;
                     //マップの配列を入れ替え
                     for(int ii = 0; ii < vectorSu; ii++) {
                         vectorX1[ii] = Integer.valueOf(studyMap.get(key)[ii + 3]);
@@ -89,7 +93,7 @@ public class SvmEvaClass implements BaseEvaVal{
                         // 正解ラベル & 分類に一致→重み係数そのまま
                         } else if (SEIKAI.equals(studyMap.get(key)[1])
                                 && studyMap.get(key)[2].equals(keyWeightParam)) {
-                            evaValue = evaValue + 2;
+                            evaValue = evaValue + 1;
                             System.out.println("判断OK  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類 " + keyWeightParam);
                         
                         // 正解ラベル & 分類に不一致→重み係数を修正
@@ -132,7 +136,7 @@ public class SvmEvaClass implements BaseEvaVal{
             }
         }
         
-        System.out.println("個体の実値 " + evaValue);
+        System.out.println("個体の実値 " + evaValue + " 正解率" + dblToStr((evaValue/countAll) * 100) + "%");
         // 重み係数をCSVに出力する。
         outPutWeightValue(folderName, weightParamMap);
 
