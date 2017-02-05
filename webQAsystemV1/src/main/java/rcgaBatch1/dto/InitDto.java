@@ -25,15 +25,15 @@ public class InitDto implements Serializable {
     
     // 変数の最小値
     public static final double[] minA 
-       = {-700.0};
+       = {-500.0};
     // 変数の最大値
     public static final double[] maxA 
-       = {300.0};
+       = {500.0};
 
-	public static final int NN = 300;                        //個体数
+	public static final int NN = 2;                        //個体数
 	public static final int calKabuNo = 50;                 //指定の株コードまで調整すること
 	public static final int buyDay = 30;                    //売買期間 日
-	public static final int calSedai = 1000;                     //計算世代数
+	public static final int calSedai = 2;                     //計算世代数
 	public static final String keisanKabuCode = "3250";    //計算世代数
 	public static final int nn = minA.length;               //染色体の数
 	

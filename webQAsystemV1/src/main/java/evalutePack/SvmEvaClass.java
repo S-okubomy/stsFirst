@@ -67,71 +67,84 @@ public class SvmEvaClass implements BaseEvaVal{
         // 重み係数のマップを分類ごとにループし、修正する。
         for (String keyWeightParam : weightParamMap.keySet()) {
             // 学習データを一行ずつ判断する。
-            for (String key : studyMap.keySet()) {
-                if (!"データNo".equals(studyMap.get(key)[0])) {
-                    countAll++;
-                    //マップの配列を入れ替え
-                    for(int ii = 0; ii < vectorSu; ii++) {
-                        vectorX1[ii] = Integer.valueOf(studyMap.get(key)[ii + 3]);
-                    }
-                    // 決定関数を計算（判断基準）
-                    fxValue = (double)getNaiseki(weightParamMap.get(keyWeightParam), vectorX1)
-                            + gaParameter[0];
-                    if (fxValue >= 0) { // 正しいと判断した場合
-                        
-                        // 不正解ラベル & 分類に一致→重み係数を修正
-                        if (FUSEIKAI.equals(studyMap.get(key)[1]) 
-                                && studyMap.get(key)[2].equals(keyWeightParam)) {
-                            for(int ii = 0; ii < vectorSu; ii++) {
-                                weightParam[ii] = weightParamMap.get(keyWeightParam)[ii] 
-                                        + ((-1) * Integer.valueOf(studyMap.get(key)[ii + 3]));
-                            }
-                            weightParamMap.put(keyWeightParam, weightParam.clone());
-                            // 画面に学習結果（判断）を表示
-                            System.out.println("判断NG  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類  " + keyWeightParam);
- 
-                        // 正解ラベル & 分類に一致→重み係数そのまま
-                        } else if (SEIKAI.equals(studyMap.get(key)[1])
-                                && studyMap.get(key)[2].equals(keyWeightParam)) {
-                            evaValue = evaValue + 1;
-                            System.out.println("判断OK  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類 " + keyWeightParam);
-                        
-                        // 正解ラベル & 分類に不一致→重み係数を修正
-                        } else if (SEIKAI.equals(studyMap.get(key)[1])
-                                && !studyMap.get(key)[2].equals(keyWeightParam)) {
-                            for(int ii = 0; ii < vectorSu; ii++) {
-                                weightParam[ii] = weightParamMap.get(keyWeightParam)[ii] 
-                                        + ((-1) * Integer.valueOf(studyMap.get(key)[ii + 3]));
-                            }
-                            weightParamMap.put(keyWeightParam, weightParam.clone());
-                            // 画面に学習結果（判断）を表示
-                            System.out.println("判断NG  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類  " + keyWeightParam);
+            boolean isSeikai = false;
+            boolean isFuseikai = false;
+            for (int i = 0; i < 10000; i++) { // 重み係数を1回だけではなく繰り返し修正することで正解率上げる
+                for (String key : studyMap.keySet()) {
+                    if (!"データNo".equals(studyMap.get(key)[0])) {
+                        countAll++;
+                        //マップの配列を入れ替え
+                        for(int ii = 0; ii < vectorSu; ii++) {
+                            vectorX1[ii] = Integer.valueOf(studyMap.get(key)[ii + 3]);
                         }
-                    } else { // 誤りと判断した場合
-                        // 不正解ラベル & 分類に一致→重み係数そのまま
-                        if (FUSEIKAI.equals(studyMap.get(key)[1]) 
-                                && studyMap.get(key)[2].equals(keyWeightParam)) {
-                            evaValue = evaValue + 1;
-                            System.out.println("判断OK  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類 " + keyWeightParam);
+                        // 決定関数を計算（判断基準）
+                        fxValue = (double)getNaiseki(weightParamMap.get(keyWeightParam), vectorX1)
+                                + gaParameter[0];
+                        if (fxValue >= 0) { // 正しいと判断した場合
                             
-                        // 正解ラベル & 分類に一致→重み係数を修正
-                        } else if (SEIKAI.equals(studyMap.get(key)[1])
-                                && studyMap.get(key)[2].equals(keyWeightParam)) {
-                            for(int ii = 0; ii < vectorSu; ii++) {
-                                weightParam[ii] = weightParamMap.get(keyWeightParam)[ii] 
-                                        + ((+1) * Integer.valueOf(studyMap.get(key)[ii + 3]));
+                            // 不正解ラベル & 分類に一致→重み係数を修正
+                            if (FUSEIKAI.equals(studyMap.get(key)[1]) 
+                                    && studyMap.get(key)[2].equals(keyWeightParam)) {
+                                for(int ii = 0; ii < vectorSu; ii++) {
+                                    weightParam[ii] = weightParamMap.get(keyWeightParam)[ii] 
+                                            + ((-1) * Integer.valueOf(studyMap.get(key)[ii + 3]));
+                                }
+                                weightParamMap.put(keyWeightParam, weightParam.clone());
+                                // 画面に学習結果（判断）を表示
+                                System.out.println("判断NG  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類  " + keyWeightParam);
+         
+                                // 正解ラベル & 分類に一致→重み係数そのまま
+                            } else if (SEIKAI.equals(studyMap.get(key)[1])
+                                    && studyMap.get(key)[2].equals(keyWeightParam)) {
+                                evaValue = evaValue + 1;
+                                System.out.println("判断OK  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類 " + keyWeightParam);
+                            
+                                isSeikai = true;
+                                
+                            // 正解ラベル & 分類に不一致→重み係数を修正
+                            } else if (SEIKAI.equals(studyMap.get(key)[1])
+                                    && !studyMap.get(key)[2].equals(keyWeightParam)) {
+                                for(int ii = 0; ii < vectorSu; ii++) {
+                                    weightParam[ii] = weightParamMap.get(keyWeightParam)[ii] 
+                                            + ((-1) * Integer.valueOf(studyMap.get(key)[ii + 3]));
+                                }
+                                weightParamMap.put(keyWeightParam, weightParam.clone());
+                                // 画面に学習結果（判断）を表示
+                                System.out.println("判断NG  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類  " + keyWeightParam);
                             }
-                            weightParamMap.put(keyWeightParam, weightParam.clone());
-                            // 画面に学習結果（判断）を表示
-                            System.out.println("判断NG  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類 " + keyWeightParam);
-                            
-                        // 正解ラベル & 分類に不一致→重み係数そのまま
-                        } else if (SEIKAI.equals(studyMap.get(key)[1])
-                                && !studyMap.get(key)[2].equals(keyWeightParam)) {
-                            evaValue = evaValue + 1;
-                            System.out.println("判断OK  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類 " + keyWeightParam);
+                        } else { // 誤りと判断した場合
+                            // 不正解ラベル & 分類に一致→重み係数そのまま
+                            if (FUSEIKAI.equals(studyMap.get(key)[1]) 
+                                    && studyMap.get(key)[2].equals(keyWeightParam)) {
+                                evaValue = evaValue + 1;
+                                System.out.println("判断OK  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類 " + keyWeightParam);
+                                
+                                isFuseikai = true;
+                                
+                            // 正解ラベル & 分類に一致→重み係数を修正
+                            } else if (SEIKAI.equals(studyMap.get(key)[1])
+                                    && studyMap.get(key)[2].equals(keyWeightParam)) {
+                                for(int ii = 0; ii < vectorSu; ii++) {
+                                    weightParam[ii] = weightParamMap.get(keyWeightParam)[ii] 
+                                            + ((+1) * Integer.valueOf(studyMap.get(key)[ii + 3]));
+                                }
+                                weightParamMap.put(keyWeightParam, weightParam.clone());
+                                // 画面に学習結果（判断）を表示
+                                System.out.println("判断NG  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類 " + keyWeightParam);
+                                
+                            // 正解ラベル & 分類に不一致→重み係数そのまま
+                            } else if (SEIKAI.equals(studyMap.get(key)[1])
+                                    && !studyMap.get(key)[2].equals(keyWeightParam)) {
+                                evaValue = evaValue + 1;
+                                System.out.println("判断OK  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類 " + keyWeightParam);
+                            }
                         }
                     }
+                }
+                
+                if (isSeikai && isFuseikai) {
+                    System.out.println("Break 正解&不正解" + " 分類 " + keyWeightParam);
+                    break;
                 }
             }
         }
