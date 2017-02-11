@@ -65,7 +65,7 @@ public class MainGetJitsuDate {
 		String[] sujoVector;
 
 
-		String testSentence = "あなたからの手紙はいつ届きますか？";
+		String testSentence = "amazonからのタブレットはいつ届きますか？";
 		
 		sujoVector = getSujoVector(soseiVecterSakuseiMap, testSentence);
 		
