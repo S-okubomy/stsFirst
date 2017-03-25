@@ -4,6 +4,9 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -16,6 +19,7 @@ import net.java.sen.dictionary.Token;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import rcgaBatch1.dto.AnsModelDto;
 import rcgaBatch1.dto.InitDto;
 import rcgaBatch1.dto.StudyModelDto;
 import util.ReadFileUtil;
@@ -45,19 +49,21 @@ public class GetJitsuDateForAns {
 
 		//学習データ取得先 URL指定
 //		String reqUrl = "http://dic.nicovideo.jp/a/";
-		String reqUrl = "https://ja.wikipedia.org/wiki/";
+//		String reqUrl = "https://ja.wikipedia.org/wiki/";
+//        args[0] = "オリンピック";
+        
+//        String reqUrl = "https://ja.wikipedia.org/wiki/村下孝蔵";
+        String reqUrl = "https://ja.wikipedia.org/wiki/小林市";
+        args[0] = "";
+        
+        String reqUrlAll = reqUrl + args[0];
+        //学習先のHTMLリスト
+        List<String> studyHtmlList = new ArrayList<String>();
+        studyHtmlList.add(reqUrlAll);
 		//String reqUrl = "http://search.goo.ne.jp/web.jsp?MT=掲示板 ADワークス&mode=0&sbd=goo001&IE=UTF-8&OE=UTF-8";
 
-		//学習先のHTMLリスト
-		List<String> studyHtmlList = new ArrayList<String>();
-
-		//TODO テスト用　後消す
-//		args[0] = "Raspberry Piとは";
-//		args[0] = "チョコレートとは";
-		args[0] = "オリンピック";
-		studyHtmlList.add(reqUrl + args[0]);
 		System.out.println("以下、検索元URL");
-		System.out.println(reqUrl + args[0]);
+		System.out.println(reqUrlAll);
 		System.out.println("以下、URLリスト（検索結果）");
 		for (String htmlUrl : studyHtmlList) {
 			System.out.println(htmlUrl);
@@ -88,6 +94,9 @@ public class GetJitsuDateForAns {
 		Pattern pUrl = Pattern.compile("(.pdf)");
 		Matcher matcherUrl;
 		String[] sujoVector;
+		
+		// 回答結果のList格納用
+		List<AnsModelDto> ansModelList = new ArrayList<AnsModelDto>();
 
 		try{
 			for(String studyHtml : studyHtmlList) {
@@ -103,10 +112,18 @@ public class GetJitsuDateForAns {
 							
 							// 振り分け結果を出力
 							outFuriwakeResult(sujoVector, weightValueMap, gaResultArray
-							        , rsltNetInfo[iCount], newFileStream);
+							        , rsltNetInfo[iCount], newFileStream, ansModelList);
 						}
 				}
 			}
+			
+			Collections.sort(ansModelList, new SortAnsModelList());
+			
+			System.out.println("並び替え後");
+			ansModelList.forEach(ansModel -> System.out.println("回答分類: " + ansModel.getAnsBunrui() 
+			                        + " fx= " + ansModel.getFxValue() 
+			                        + " 文章: " + ansModel.getAnsSentence()));
+			
 		} catch (IOException e){
 			e.printStackTrace();
 			System.out.println("ファイル書き込み失敗");
@@ -134,7 +151,8 @@ public class GetJitsuDateForAns {
 	 */
 	private void outFuriwakeResult(String[] sujoVector
 	        , LinkedHashMap<String,String[]> weightValueMap, String[] gaResultArray
-	        , String rsltSentence, BufferedWriter newFileStream) throws IOException {
+	        , String rsltSentence, BufferedWriter newFileStream
+	        , List<AnsModelDto> ansModelList) throws IOException {
         // 振り分け結果を出力
         for (String key : weightValueMap.keySet()) {
              //配列を作りなおし
@@ -147,7 +165,7 @@ public class GetJitsuDateForAns {
                                            , Double.parseDouble(gaResultArray[3]));
            
            if (SEIKAI.equals(studyModelDto.getHanteiJoho()) 
-                   && studyModelDto.getFxValue() > 70.0) {
+                   && studyModelDto.getFxValue() > 100.0) {
                //ファイルへの書き込み
                System.out.println("該当あり    回答分類: " + weightValueMap.get(key)[0] + " fx= " + studyModelDto.getFxValue() 
                                    + " 文章: " + rsltSentence);
@@ -155,6 +173,14 @@ public class GetJitsuDateForAns {
                newFileStream.write(rsltSentence);
                newFileStream.newLine();
                newFileStream.flush();
+               
+               // 回答結果をListに格納
+               AnsModelDto ansModelDto = new AnsModelDto();
+               ansModelDto.setHanteiJoho(studyModelDto.getHanteiJoho());
+               ansModelDto.setAnsBunrui(weightValueMap.get(key)[0]);
+               ansModelDto.setFxValue(studyModelDto.getFxValue());
+               ansModelDto.setAnsSentence(rsltSentence);
+               ansModelList.add(ansModelDto);
                
            } else {
 //               System.out.println("該当 なし   回答分類: " + weightValueMap.get(key)[0] + " fx= " + studyModelDto.getFxValue()
@@ -337,6 +363,25 @@ public class GetJitsuDateForAns {
     	}
 
 		return naisekiValue;
+	}
+	
+	/**
+	 * ソート用クラス
+	 * @author Administrator
+	 *
+	 */
+	private class SortAnsModelList implements Comparator<AnsModelDto> {
+        public static final int ASC = 1;   //昇順 (1.2.3....)
+        public static final int DESC = -1; //降順 (3.2.1....)
+        
+        @Override
+        public int compare(AnsModelDto ansModel1, AnsModelDto ansModel2) {
+            
+            // compareメソッド : 引数1=引数2→0、引数1<引数2→-1、引数1>引数2→1
+            
+            // 降順
+            return DESC * Double.compare(ansModel1.getFxValue(), ansModel2.getFxValue());
+        }
 	}
 
 

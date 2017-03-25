@@ -95,7 +95,7 @@ public class MainGetJitsuDate {
 	/**
 	 * 素性ベクトルを返す
 	 * @param soseiVecterSakuseiMap
-	 * @param strNetInfo
+	 * @param str
 	 * @return
 	 * @throws Exception
 	 */
