@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import net.java.sen.SenFactory;
 import net.java.sen.StringTagger;
@@ -120,7 +121,12 @@ public class GetJitsuDateForAns {
 			Collections.sort(ansModelList, new SortAnsModelList());
 			
 			System.out.println("並び替え後");
-			ansModelList.forEach(ansModel -> System.out.println("回答分類: " + ansModel.getAnsBunrui() 
+			
+			// 正規表現でフィルター（文章の前後にスペースを含む行を除く    "^\\x01-\\x7E"で1バイト文字以外を探す）
+			ansModelList.stream()
+			            .filter(ansModel -> !ansModel.getAnsSentence()
+			                    .matches(".*([a-zA-Z0-9]|[^\\x01-\\x7E]).*\\ ([a-zA-Z0-9]|[^\\x01-\\x7E]).*"))
+			            .forEach(ansModel -> System.out.println("回答分類: " + ansModel.getAnsBunrui() 
 			                        + " fx= " + ansModel.getFxValue() 
 			                        + " 文章: " + ansModel.getAnsSentence()));
 			
