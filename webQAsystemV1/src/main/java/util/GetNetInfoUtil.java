@@ -22,7 +22,7 @@ public class GetNetInfoUtil {
 	 */
 	public static List<String> getStudyHtmlList(String reqUrl) throws IOException {
 
-		String beforeWord = "<p class=\"title fsL1\"><a href=\"";  //抽出単語の前部（空白含む）
+		String beforeWord = "<p class=\"title fsL1\"> <a href=\"";  //抽出単語の前部（空白含む）
 		String afterWord = "\" target=";							 //抽出単語の後部（空白含む）
 
 		List<String> studyHtmlList = new ArrayList<String>();
@@ -33,7 +33,7 @@ public class GetNetInfoUtil {
 
 	        //受信したストリームから値を取り出す
 	        for (int i = 0 ; i < line.length ; i++) {
-				if(line[i].indexOf("<p class=\"title fsL1\"><a href") != -1){
+				if(line[i].indexOf("<p class=\"title fsL1\"> <a href") != -1){
 					studyHtmlList.add(SelectWordUtil.selectWord(line[i], beforeWord, afterWord));
 				}
 			}

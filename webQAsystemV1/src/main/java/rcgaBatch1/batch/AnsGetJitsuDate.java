@@ -32,18 +32,17 @@ import util.SelectWordUtil;
  * @author Administrator
  *
  */
-public class GetJitsuDateForAns {
+public class AnsGetJitsuDate {
 
 	public static final String SEIKAI = "T";
 	public static final String FUSEIKAI = "F";
 
 	public static void main(String[] args) throws Exception {
-		// TODO 自動生成されたメソッド・スタブ
 
-		GetJitsuDateForAns mainGetJitsuDate = new GetJitsuDateForAns();
+		AnsGetJitsuDate mainGetJitsuDate = new AnsGetJitsuDate();
 
-		//
 		String[] args1 = new String[2];
+	    args1[0] = "新宿駅はどこにありますか？";
 		mainGetJitsuDate.getJitsuDate(args1);
 	}
 
@@ -52,7 +51,6 @@ public class GetJitsuDateForAns {
 		//学習データ取得先 URL指定
 	    String reqUrl = "https://search.goo.ne.jp/web.jsp?MT=";
         
-        args[0] = "プレステの発売日はいつ？";
         String reqUrlAll = reqUrl + args[0] + "&mode=0&sbd=goo001&IE=UTF-8&OE=UTF-8";
         //学習先のHTMLリスト
         List<String> studyHtmlList = new ArrayList<String>();
@@ -74,8 +72,8 @@ public class GetJitsuDateForAns {
 		String csvWeightValueFileInput = folderName + "ans_outWGVal.csv";
 		LinkedHashMap<String,String[]> weightValueMap = ReadFileUtil.readCsvCom(csvWeightValueFileInput);
 
-		//GA学習結果の読み取り
-		String csvStudyResultInput = folderName + "getSVMParam.csv";
+		//GA学習結果の読み取り（getStudyManModelTestHist.csv → ans_SVMParam.csv）
+		String csvStudyResultInput = folderName + "ans_SVMParam.csv";
 		LinkedHashMap<String,String[]> studyResultMap = ReadFileUtil.readCsvCom(csvStudyResultInput);
 		String[] gaResultArray = studyResultMap.get("2").clone();
 
@@ -172,8 +170,8 @@ public class GetJitsuDateForAns {
            if (SEIKAI.equals(studyModelDto.getHanteiJoho()) 
                    && studyModelDto.getFxValue() > 100.0) {
                //ファイルへの書き込み
-               System.out.println("該当あり    回答分類: " + weightValueMap.get(key)[0] + " fx= " + studyModelDto.getFxValue() 
-                                   + " 文章: " + rsltSentence);
+//               System.out.println("該当あり    回答分類: " + weightValueMap.get(key)[0] + " fx= " + studyModelDto.getFxValue() 
+//                                   + " 文章: " + rsltSentence);
                //ファイルへの書き込み
                newFileStream.write(rsltSentence);
                newFileStream.newLine();

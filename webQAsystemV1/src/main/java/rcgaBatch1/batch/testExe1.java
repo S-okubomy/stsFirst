@@ -8,8 +8,8 @@ public class testExe1 {
 
     public static void main(String[] args) throws Exception {
         // 最適化する評価関数名（クラス名）
-        String evalMethodName = "evalutePack.SvmEvaForAns"; // 回答パターンの重み係数算出用
-//        String evalMethodName = "evalutePack.SvmEvaClass"; // 質問パターンの重み係数算出用
+//        String evalMethodName = "evalutePack.SvmEvaForAns"; // 回答パターンの重み係数算出用
+        String evalMethodName = "evalutePack.SvmEvaClass"; // 質問パターンの重み係数算出用
 //        String evalMethodName = "evalutePack.testEvaClass1";
         
         MainRcga mainRcga = new MainRcga();

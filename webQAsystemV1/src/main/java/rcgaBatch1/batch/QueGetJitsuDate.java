@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -16,17 +18,18 @@ import net.java.sen.dictionary.Token;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import rcgaBatch1.dto.AnsModelDto;
 import rcgaBatch1.dto.InitDto;
 import rcgaBatch1.dto.StudyModelDto;
 import util.ReadFileUtil;
 import util.SelectWordUtil;
 
 /**
- * GAの学習結果より、ネットから情報を収集する
+ * 質問タイプを判定する。
  * @author Administrator
  *
  */
-public class MainGetJitsuDate {
+public class QueGetJitsuDate {
 
 	public static final String SEIKAI = "T";
 	public static final String FUSEIKAI = "F";
@@ -34,14 +37,14 @@ public class MainGetJitsuDate {
 	public static void main(String[] args) throws Exception {
 		// TODO 自動生成されたメソッド・スタブ
 
-		MainGetJitsuDate mainGetJitsuDate = new MainGetJitsuDate();
-
-		//
+		QueGetJitsuDate mainGetJitsuDate = new QueGetJitsuDate();
 		String[] args1 = new String[2];
+		args1[0] = "新宿駅はどこにありますか？";
+		
 		mainGetJitsuDate.getJitsuDate(args1);
 	}
 
-	public void getJitsuDate(String[] args) throws Exception {
+	public List<AnsModelDto> getJitsuDate(String[] args) throws Exception {
 
 		
         // Projectのトップディレクトリパス取得
@@ -50,25 +53,24 @@ public class MainGetJitsuDate {
         folderName = folderName + "\\src\\main\\java\\rcgaBatch1\\batch\\";
 
 		//重み係数の読み込み
-		String csvWeightValueFileInput = folderName + "outWeightValue.csv";
+		String csvWeightValueFileInput = folderName + "que_outWeightValue.csv";
 		LinkedHashMap<String,String[]> weightValueMap = ReadFileUtil.readCsvCom(csvWeightValueFileInput);
 
-		//GA学習結果の読み取り
-		String csvStudyResultInput = folderName + "getStudyManModelTestHist.csv";
+		//GA学習結果の読み取り（getStudyManModelTestHist.csv → que_SVMParam.csv）
+		String csvStudyResultInput = folderName + "que_SVMParam.csv";
 		LinkedHashMap<String,String[]> studyResultMap = ReadFileUtil.readCsvCom(csvStudyResultInput);
 		String[] gaResultArray = studyResultMap.get("2").clone();
 
 		//素性ベクトル作成用
-		String soseiVecterSakusei = folderName + "studyInput.txt";
+		String soseiVecterSakusei = folderName + "que_studyInput.txt";
 		LinkedHashMap<String,String[]> soseiVecterSakuseiMap = ReadFileUtil.readCsvCom(soseiVecterSakusei);
 
 		String[] sujoVector;
-
-
-		String testSentence = "amazonからのタブレットはいつ届きますか？";
+		sujoVector = getSujoVector(soseiVecterSakuseiMap, args[0]);
 		
-		sujoVector = getSujoVector(soseiVecterSakuseiMap, testSentence);
-		
+		// 回答結果のList格納用
+        List<AnsModelDto> ansModelList = new ArrayList<AnsModelDto>();
+
 		for (String key : weightValueMap.keySet()) {
 		      //配列を作りなおし
 	        String[] weightValueMapArray = new String[weightValueMap.get(key).length -1];
@@ -81,16 +83,52 @@ public class MainGetJitsuDate {
 	        
 	        if (SEIKAI.equals(studyModelDto.getHanteiJoho())) {
 	            //ファイルへの書き込み
-	            System.out.println("該当あり    質問分類: " + weightValueMap.get(key)[0] + " fx= " + studyModelDto.getFxValue());
+//	            System.out.println("該当あり    質問分類: " + weightValueMap.get(key)[0] + " fx= " + studyModelDto.getFxValue());
+	            
+	               // 回答結果をListに格納
+	               AnsModelDto ansModelDto = new AnsModelDto();
+	               ansModelDto.setHanteiJoho(studyModelDto.getHanteiJoho());
+	               ansModelDto.setAnsBunrui(weightValueMap.get(key)[0]);
+	               ansModelDto.setFxValue(studyModelDto.getFxValue());
+	               ansModelDto.setAnsSentence(args[0]);
+	               ansModelList.add(ansModelDto);
 	        } else {
-	            System.out.println("該当 なし   質問分類: " + weightValueMap.get(key)[0] + " fx= " + studyModelDto.getFxValue());
+//	            System.out.println("該当 なし   質問分類: " + weightValueMap.get(key)[0] + " fx= " + studyModelDto.getFxValue());
 	        }
 		}
 		
-
-		
+        Collections.sort(ansModelList, new SortAnsModelList());
+        System.out.println("並び替え後");
+        // 正規表現でフィルター（文章の前後にスペースを含む行を除く    "^\\x01-\\x7E"で1バイト文字以外を探す）
+        ansModelList.stream()
+                    .filter(ansModel -> !ansModel.getAnsSentence()
+                            .matches(".*([a-zA-Z0-9]|[^\\x01-\\x7E]).*\\ ([a-zA-Z0-9]|[^\\x01-\\x7E]).*"))
+                    .forEach(ansModel -> System.out.println("回答分類: " + ansModel.getAnsBunrui() 
+                                + " fx= " + ansModel.getFxValue() 
+                                + " 文章: " + ansModel.getAnsSentence()));
+        System.out.println("出力完了");
+        
+        return ansModelList;
 	}
 
+	/**
+     * ソート用クラス
+     * @author Administrator
+     *
+     */
+    private class SortAnsModelList implements Comparator<AnsModelDto> {
+        public static final int ASC = 1;   //昇順 (1.2.3....)
+        public static final int DESC = -1; //降順 (3.2.1....)
+        
+        @Override
+        public int compare(AnsModelDto ansModel1, AnsModelDto ansModel2) {
+            
+            // compareメソッド : 引数1=引数2→0、引数1<引数2→-1、引数1>引数2→1
+            
+            // 降順
+            return DESC * Double.compare(ansModel1.getFxValue(), ansModel2.getFxValue());
+        }
+    }
 
 	/**
 	 * 素性ベクトルを返す
