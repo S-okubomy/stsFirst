@@ -39,14 +39,14 @@ public class AnsGetDataUnit {
 	private static final int maxHtmlListSize = 5;
 	
 
-	public static void main(String[] args) throws Exception {
-
-		AnsGetDataUnit mainGetJitsuDate = new AnsGetDataUnit();
-
-		String[] args1 = new String[2];
-	    args1[0] = "新宿駅はどこにありますか？";
-		mainGetJitsuDate.getJitsuDate(args1);
-	}
+//	public static void main(String[] args) throws Exception {
+//
+//		AnsGetDataUnit mainGetJitsuDate = new AnsGetDataUnit();
+//
+//		String[] args1 = new String[2];
+//	    args1[0] = "新宿駅はどこにありますか？";
+//		mainGetJitsuDate.getJitsuDate(args1);
+//	}
 
 	public List<AnsModelDto> getJitsuDate(String[] args) throws Exception {
 
@@ -68,8 +68,8 @@ public class AnsGetDataUnit {
         // Projectのトップディレクトリパス取得
         String folderName = System.getProperty("user.dir");
         // トップディレクトリパス以降を設定
-        String inputFolderName = folderName + "\\src\\main\\resources\\inputFile\\";
-        String outputFolderName = folderName + "\\src\\main\\resources\\outputFile\\";
+        String inputFolderName = folderName + "/src/main/resources/inputFile/";
+        String outputFolderName = folderName + "/src/main/resources/outputFile/";
 
 		//重み係数の読み込み
 		String csvWeightValueFileInput = inputFolderName + "ans_outWeightValue.csv";

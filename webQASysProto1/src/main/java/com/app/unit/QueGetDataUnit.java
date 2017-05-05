@@ -34,15 +34,15 @@ public class QueGetDataUnit {
 	public static final String SEIKAI = "T";
 	public static final String FUSEIKAI = "F";
 
-	public static void main(String[] args) throws Exception {
-		// TODO 自動生成されたメソッド・スタブ
-
-		QueGetDataUnit mainGetJitsuDate = new QueGetDataUnit();
-		String[] args1 = new String[2];
-		args1[0] = "新宿駅はどこにありますか？";
-		
-		mainGetJitsuDate.getJitsuDate(args1);
-	}
+//	public static void main(String[] args) throws Exception {
+//		// TODO 自動生成されたメソッド・スタブ
+//
+//		QueGetDataUnit mainGetJitsuDate = new QueGetDataUnit();
+//		String[] args1 = new String[2];
+//		args1[0] = "新宿駅はどこにありますか？";
+//		
+//		mainGetJitsuDate.getJitsuDate(args1);
+//	}
 
 	public List<AnsModelDto> getJitsuDate(String[] args) throws Exception {
 
@@ -50,7 +50,7 @@ public class QueGetDataUnit {
         // Projectのトップディレクトリパス取得
         String folderName = System.getProperty("user.dir");
         // トップディレクトリパス以降を設定
-        String inputFolderName = folderName + "\\src\\main\\resources\\inputFile\\";
+        String inputFolderName = folderName + "/src/main/resources/inputFile/";
 
 		//重み係数の読み込み
 		String csvWeightValueFileInput = inputFolderName + "que_outWeightValue.csv";
