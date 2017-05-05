@@ -72,7 +72,7 @@ public class AnsGetDataUnit {
         String outputFolderName = folderName + "\\src\\main\\resources\\outputFile\\";
 
 		//重み係数の読み込み
-		String csvWeightValueFileInput = inputFolderName + "ans_outWGVal.csv";
+		String csvWeightValueFileInput = inputFolderName + "ans_outWeightValue.csv";
 		LinkedHashMap<String,String[]> weightValueMap = ReadFileUtil.readCsvCom(csvWeightValueFileInput);
 
 		//GA学習結果の読み取り（getStudyManModelTestHist.csv → ans_SVMParam.csv）
@@ -176,7 +176,7 @@ public class AnsGetDataUnit {
                                            , Double.parseDouble(gaResultArray[3]));
            
            if (SEIKAI.equals(studyModelDto.getHanteiJoho()) 
-                   && studyModelDto.getFxValue() > 100.0) {
+                   && studyModelDto.getFxValue() > 10.0) {
                //ファイルへの書き込み
 //               System.out.println("該当あり    回答分類: " + weightValueMap.get(key)[0] + " fx= " + studyModelDto.getFxValue() 
 //                                   + " 文章: " + rsltSentence);

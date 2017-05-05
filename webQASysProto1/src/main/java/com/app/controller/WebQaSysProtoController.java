@@ -49,6 +49,7 @@ public class WebQaSysProtoController
             , BindingResult result, Model model) {
         
         if (result.hasErrors()) {
+            model.addAttribute("hasErrorFlag", "1");
             return null;
         }
         
@@ -71,7 +72,8 @@ public class WebQaSysProtoController
             , BindingResult result, Model model) throws Exception {
         
         if (result.hasErrors()) {
-            return index(locale, indexForm, model);
+            model.addAttribute("hasErrorFlag", "1");
+            return inputArea(locale, model);
         }
         
         // ログを出力する
@@ -89,7 +91,9 @@ public class WebQaSysProtoController
         String formattedDate = dateFormat.format(date);
         model.addAttribute("serverTime", formattedDate );
         
-        return "webQAindex";
+        model.addAttribute("hasErrorFlag", "0");
+
+        return "window/anserList";
     }
     
     /**
@@ -108,5 +112,19 @@ public class WebQaSysProtoController
         model.addAttribute("serverTime", formattedDate );
         
         return "webQAindex";
+    }
+    
+    private String inputArea(Locale locale, Model model) {
+        logger.info("Welcome home ERROR! The client locale is {}.", locale);
+        
+        Date date = new Date();
+        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, locale);
+        String formattedDate = dateFormat.format(date);
+        
+        ResultQAModelDto resultQADto = new ResultQAModelDto();
+        model.addAttribute("resultQADto", resultQADto);
+        model.addAttribute("serverTime", formattedDate );
+        
+        return "window/inputArea";
     }
 }
