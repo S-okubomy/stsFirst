@@ -8,9 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import com.svm.interfaceEva.BaseEvaVal;
 import com.svm.util.MyFileUtil;
@@ -24,7 +22,7 @@ public class SvmEvaClass implements BaseEvaVal{
 
     public static final String SEIKAI = "T";
     public static final String FUSEIKAI = "F";
-    private static final int maxRoopCnt = 5000;
+    private static final int maxRoopCnt = 200;
     
     /* (非 Javadoc)
      * @see interfaceEva.BaseEvaVal#execute(double)
@@ -59,7 +57,7 @@ public class SvmEvaClass implements BaseEvaVal{
             weightParam[i] = 1;
         }
         
-        Map<String, int[]> weightParamMap = new HashMap<String, int[]>();
+        LinkedHashMap<String, int[]> weightParamMap = new LinkedHashMap<String, int[]>();
         for (String key : studyMap.keySet()) {
             if (!"データNo".equals(studyMap.get(key)[0])) {
                 if (!weightParamMap.containsKey(studyMap.get(key)[2])) {
@@ -179,7 +177,7 @@ public class SvmEvaClass implements BaseEvaVal{
         return naisekiValue;
     }
     
-    private void outPutWeightValue(String weightValName, Map<String, int[]> weightParamMap) {
+    private void outPutWeightValue(String weightValName, LinkedHashMap<String, int[]> weightParamMap) {
         
         //重み係数をCSVへ書き込み
         StringBuilder weightParamOut = new StringBuilder();

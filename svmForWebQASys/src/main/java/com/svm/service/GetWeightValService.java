@@ -12,25 +12,43 @@ import com.svm.evalutePack.EvaCalMax1;
 import com.svm.unit.GetNGramUnit;
 import com.svm.unit.MainRcgaUnit;
 
+
 public class GetWeightValService {
 
+    // SVM実行モードにより変更する。
+    public static final SVM_MODE svmExeMode = SVM_MODE.QUE_AND_ANS; 
+    
     public static void main(String[] args) throws Exception {
         
-        GetWeightValService getWeightValService = new GetWeightValService();
-        
-        // ================= 質問解析用の重み係数を作成する  =================
-        String modeName = "que";
-        getWeightValService.getWeightVal(modeName);
-        System.out.println("質問解析 完了");
-        
-        // ================= 応答解析用の重み係数を作成する  =================
-        getWeightValService = new GetWeightValService();
-        modeName = "ans";
-        getWeightValService.getWeightVal(modeName);
-        System.out.println("応答解析 完了");
+        // SVMの実行モードにより、学習モード（解析パターン）を切り替える
+        switch (svmExeMode) {
+        case ONLY_QUE:
+            // ================= 質問解析用の重み係数を作成する  =================
+            System.out.println("質問解析のみ");
+            getWeightVal("que");
+            System.out.println("質問解析のみ 完了");
+            break;
+        case ONLY_ANS:
+            // ================= 応答解析用の重み係数を作成する  =================
+            System.out.println("応答解析のみ");
+            getWeightVal("ans");
+            System.out.println("応答解析のみ 完了");
+            break;
+        case QUE_AND_ANS:
+            // ================= 質問解析及び応答解析用の重み係数を作成する  =================
+            System.out.println("質問解析及び応答解析");
+            getWeightVal("que");
+            System.out.println("質問解析  完了");
+            getWeightVal("ans");
+            System.out.println("応答解析  完了");
+            break;
+        default:
+            System.out.println("SVM実行モードが該当しません。実行モードを確認してください");
+            break;
+        }
     }
     
-    private void getWeightVal(String modeName) throws Exception {
+    private static void getWeightVal(String modeName) throws Exception {
         
         // 最適化する評価関数名（クラス名）
         String evalMethodName = "com.svm.evalutePack.SvmEvaClass"; // 質問パターンの重み係数算出用
@@ -75,6 +93,31 @@ public class GetWeightValService {
         
         //0.5秒待つ
         Thread.sleep( 500 ) ;
+    }
+    
+    /**
+     * SVM実行モード
+     * @author Administrator
+     */
+    public static enum SVM_MODE {
+
+        ONLY_QUE(1),
+        ONLY_ANS(2),
+        QUE_AND_ANS(3);
+        
+        int mode;
+        SVM_MODE(int mode) {
+            this.mode = mode;
+        }
+
+        static SVM_MODE get(int mode) {
+            for (SVM_MODE svmMode : values()) {
+                if (svmMode.mode == mode) {
+                    return svmMode;
+                }
+            }
+            return null;
+        }
     }
 
 }
